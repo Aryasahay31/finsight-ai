@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: finsight-ai
+  labels:
+    app: finsight-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: finsight-backend
+  template:
+    metadata:
+      labels:
+        app: finsight-backend
+    spec:
+      containers:
+        - name: backend
+          image: finsight-ai-backend:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: LLM_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: finsight-secrets
+                  key: llm-provider
+            - name: GROQ_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: finsight-secrets
+                  key: groq-api-key
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10

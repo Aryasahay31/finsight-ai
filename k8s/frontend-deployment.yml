@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: finsight-ai
+  labels:
+    app: finsight-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finsight-frontend
+  template:
+    metadata:
+      labels:
+        app: finsight-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: finsight-ai-frontend:latest
+          ports:
+            - containerPort: 8501
+          env:
+            - name: API_URL
+              value: "http://backend-service:8000"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "125m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
